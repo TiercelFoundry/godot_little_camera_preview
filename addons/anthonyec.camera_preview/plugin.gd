@@ -63,6 +63,15 @@ func _on_editor_selection_changed() -> void:
 func is_main_screen_viewport() -> bool:
 	return current_main_screen_name == "3D" or current_main_screen_name == "2D"
 	
+func find_child_of_type(parent: Node, type_name: String) -> Node:
+	for child in parent.get_children():
+		if child.is_class(type_name):
+			return child
+		var found = find_child_of_type(child, type_name)
+		if found:
+			return found    
+	return null
+
 func find_camera_3d_or_null(nodes: Array[Node]) -> Camera3D:
 	var camera: Camera3D
 	
@@ -70,9 +79,12 @@ func find_camera_3d_or_null(nodes: Array[Node]) -> Camera3D:
 		if node is Camera3D:
 			camera = node as Camera3D
 			break
-			
-	return camera
 	
+	if camera == null and len(nodes) == 1:
+		camera = find_child_of_type(nodes[0], "Camera3D")
+	return camera
+
+
 func find_camera_2d_or_null(nodes: Array[Node]) -> Camera2D:
 	var camera: Camera2D
 	
@@ -81,6 +93,8 @@ func find_camera_2d_or_null(nodes: Array[Node]) -> Camera2D:
 			camera = node as Camera2D
 			break
 			
+	if camera == null and len(nodes) == 1:
+		camera = find_child_of_type(nodes[0], "Camera2D")
 	return camera
 
 func _on_selected_camera_3d_tree_exiting() -> void:
